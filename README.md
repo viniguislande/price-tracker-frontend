@@ -4,15 +4,27 @@
 
 Interface web desenvolvida com React e Vite para o sistema de rastreamento de preços. Permite buscar produtos, gerenciar favoritos, visualizar histórico de preços em gráficos e configurar alertas.
 
+## 🏗️ Arquitetura
+
+```mermaid
+graph TB
+    A[Frontend React<br/>Porta 3000] -->|REST API| B[Backend FastAPI<br/>Porta 8000]
+    B -->|Carrega Produtos| C[Produtos de Mercado<br/>JSON Local]
+    B -->|Persiste Dados| D[(SQLite Database)]
+    B -->|Simula Variações| B
+```
+
 ## 🎨 Funcionalidades
 
-- 🔍 Busca de produtos na FakeStore API
+- 🛒 Busca de produtos de mercado/supermercado
+- 🥫 Produtos temáticos: comida, limpeza, casa, higiene, etc.
 - ❤️ Gerenciamento de favoritos
 - 📊 Visualização de histórico de preços em gráficos
 - 🔔 Configuração de alertas de preço
 - 📈 Dashboard com estatísticas
 - 🎯 Filtros e ordenação avançados
 - 📱 Design responsivo
+- ⭐ Indicadores visuais de produtos favoritados
 
 ## 🚀 Tecnologias
 
@@ -88,9 +100,10 @@ Todas as requisições são feitas através do serviço `api.js` que utiliza Axi
 ## 🎯 Funcionalidades Principais
 
 ### Home
-- Busca de produtos na FakeStore API
-- Filtro por categoria
+- Busca de produtos de mercado/supermercado
+- Filtro por categoria (Alimentos, Limpeza, Bebidas, etc.)
 - Adicionar produtos aos favoritos
+- Indicadores visuais de produtos já favoritados
 
 ### Favoritos
 - Lista de produtos favoritos
@@ -103,6 +116,8 @@ Todas as requisições são feitas através do serviço `api.js` que utiliza Axi
 - Informações completas
 - Gráfico de histórico de preços
 - Gerenciamento de alertas
+- Suporte para produtos externos (ainda não favoritados) e favoritos
+- Botão para adicionar aos favoritos (se ainda não estiver)
 
 ### Dashboard
 - Estatísticas gerais
@@ -121,6 +136,15 @@ Todas as requisições são feitas através do serviço `api.js` que utiliza Axi
 O arquivo `vite.config.js` contém as configurações do Vite, incluindo a porta do servidor de desenvolvimento (3000).
 
 O arquivo `tailwind.config.js` configura o Tailwind CSS para processar arquivos JSX/TSX.
+
+## ⚠️ Sobre os Dados
+
+Este sistema utiliza produtos temáticos de mercado/supermercado. Os preços são simulados pelo backend:
+
+- **Produtos temáticos**: Comida, produtos de limpeza, higiene, casa, etc.
+- **Variação simulada**: ±10% do preço original
+- **Atualização**: A cada consulta do histórico, uma nova variação é gerada
+- **50 produtos disponíveis** em 10 categorias diferentes
 
 ## 📄 Licença
 

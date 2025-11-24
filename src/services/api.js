@@ -12,8 +12,19 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Não mostrar toast para erros 404 ou 422 em verificações silenciosas
+    // O toast será mostrado apenas quando explicitamente necessário
+    if (error.response?.status === 404 || error.response?.status === 422) {
+      return Promise.reject(error);
+    }
     const message = error.response?.data?.detail || error.message || 'Erro ao processar requisição';
-    toast.error(message);
+    // Verificar se a mensagem é um array (erro de validação do Pydantic)
+    if (Array.isArray(message)) {
+      const firstError = message[0]?.msg || 'Erro de validação';
+      toast.error(firstError);
+    } else if (typeof message === 'string') {
+      toast.error(message);
+    }
     return Promise.reject(error);
   }
 );
@@ -33,6 +44,7 @@ export const searchProducts = async (category = null) => {
 
 export const getProductById = async (id) => {
   try {
+    // ID é integer (produto da FakeStore)
     const response = await api.get(`/external/produtos/${id}`);
     return response.data;
   } catch (error) {
@@ -40,8 +52,18 @@ export const getProductById = async (id) => {
   }
 };
 
+export const getExternalProductById = async (externalId) => {
+  try {
+    // Alias para getProductById para clareza
+    return await getProductById(externalId);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const trackProduct = async (externalId) => {
   try {
+    // externalId é integer (produto da FakeStore)
     const response = await api.post(`/external/produtos/${externalId}/track`);
     return response.data;
   } catch (error) {
@@ -120,7 +142,35 @@ export const getFavoriteById = async (id) => {
     const response = await api.get(`/produtos/${id}`);
     return response.data;
   } catch (error) {
+    if (error.response && error.response.status === 404) {
+      return null; // Retorna null se não encontrar, sem lançar erro
+    }
     throw error;
+  }
+};
+
+export const getFavoriteByExternalId = async (externalId) => {
+  try {
+    // Buscar favorito por external_id (string)
+    // Buscar todos os favoritos (com limite de 100) e filtrar
+    const favorites = await getFavorites({ limit: 100 });
+    const favorite = favorites.items?.find(f => f.external_id === externalId);
+    return favorite || null;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      return null;
+    }
+    return null; // Retornar null em caso de erro para não quebrar a aplicação
+  }
+};
+
+export const checkIfFavorite = async (externalId) => {
+  try {
+    const favorite = await getFavoriteByExternalId(externalId);
+    return favorite !== null;
+  } catch (error) {
+    console.error("Erro ao verificar se é favorito:", error);
+    return false;
   }
 };
 

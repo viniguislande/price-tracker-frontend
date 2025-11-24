@@ -17,6 +17,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/favoritos" element={<Favorites />} />
             <Route path="/produto/:id" element={<ProductDetail />} />
+            <Route path="/produto/external/:externalId" element={<ProductDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

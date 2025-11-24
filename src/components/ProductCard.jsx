@@ -1,4 +1,4 @@
-import { Heart, ExternalLink } from 'lucide-react';
+import { Heart, ExternalLink, Star } from 'lucide-react';
 import { formatPrice, getVariationColor, getVariationIcon } from '../utils/helpers';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ export default function ProductCard({
   const handleAddFavorite = async (e) => {
     e.stopPropagation();
     if (onAddFavorite) {
-      const externalId = product.external_id || (product.id && !product.preco_original ? product.id : null);
+      const externalId = product.external_id || product.id; // Use product.id if external_id is not present (for external products)
       if (externalId) {
         await onAddFavorite(externalId);
       }
@@ -25,7 +25,12 @@ export default function ProductCard({
     if (onViewDetails) {
       onViewDetails(product.id);
     } else {
-      navigate(`/produto/${product.id}`);
+      // Differentiate navigation based on whether it's an external product or a favorited one
+      if (product.external_id && !product.preco_original) { // Heuristic for external product
+        navigate(`/produto/external/${product.external_id}`);
+      } else {
+        navigate(`/produto/${product.id}`);
+      }
     }
   };
 
@@ -44,6 +49,11 @@ export default function ProductCard({
             e.target.src = 'https://via.placeholder.com/300';
           }}
         />
+        {isFavorite && (
+          <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 flex items-center gap-1">
+            <Star size={14} fill="currentColor" /> Favoritado
+          </div>
+        )}
         {showVariation && variation !== null && variation !== undefined && (
           <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${
             variationColor === 'green' ? 'bg-green-100 text-green-800' :
@@ -85,6 +95,15 @@ export default function ProductCard({
             >
               <Heart size={18} />
               <span>Adicionar</span>
+            </button>
+          )}
+          {isFavorite && (
+            <button
+              disabled
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
+            >
+              <Heart size={18} />
+              <span>Já nos favoritos</span>
             </button>
           )}
           
